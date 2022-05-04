@@ -1,0 +1,22 @@
+export ORG_ID=$(gcloud organizations list --format 'value(ID)')
+export CUSTOMER_ID=$(gcloud organizations list --format 'value(DIRECTORY_CUSTOMER_ID)')
+export PROJECT_ID=$(gcloud config list --format 'value(core.project)')
+export PROJECT_NUMBER=$(gcloud projects list --filter=${PROJECT_ID} --format="value(PROJECT_NUMBER)")
+
+gcloud resource-manager org-policies allow --organization $ORG_ID iam.allowedPolicyMemberDomains $CUSTOMER_ID
+
+gcloud resource-manager org-policies allow --organization $ORG_ID gcp.resourceLocations in:australia-locations
+
+gcloud resource-manager org-policies enable-enforce --organization $ORG_ID storage.publicAccessPrevention
+
+gcloud resource-manager org-policies enable-enforce --organization $ORG_ID iam.disableServiceAccountKeyCreation 
+
+
+cat > vmExternalIpAccess.yaml << ENDOFFILE
+name: projects/$PROJECT_NUMBER/policies/compute.vmExternalIpAccess
+spec:
+  rules:
+  - denyAll: true
+ENDOFFILE
+
+gcloud org-policies set-policy vmExternalIpAccess.yaml
