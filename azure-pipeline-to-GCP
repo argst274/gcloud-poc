@@ -1,0 +1,48 @@
+gcloud services enable compute.googleapis.com
+gcloud services enable container.googleapis.com
+
+gcloud iam service-accounts create svc-k8s \
+    --description="Service account for tf-k8s-ag" \
+    --display-name="svc-k8s"
+
+gcloud projects add-iam-policy-binding tf-k8s-ag \
+    --member="serviceAccount:svc-k8s@tf-k8s-ag.iam.gserviceaccount.com" \
+    --role="roles/compute.viewer"
+gcloud projects add-iam-policy-binding tf-k8s-ag \
+    --member="serviceAccount:svc-k8s@tf-k8s-ag.iam.gserviceaccount.com" \
+    --role="roles/compute.securityAdmin" 
+gcloud projects add-iam-policy-binding tf-k8s-ag \
+    --member="serviceAccount:svc-k8s@tf-k8s-ag.iam.gserviceaccount.com" \
+    --role="roles/container.clusterAdmin"
+gcloud projects add-iam-policy-binding tf-k8s-ag \
+    --member="serviceAccount:svc-k8s@tf-k8s-ag.iam.gserviceaccount.com" \
+    --role="roles/container.developer"
+gcloud projects add-iam-policy-binding tf-k8s-ag \
+    --member="serviceAccount:svc-k8s@tf-k8s-ag.iam.gserviceaccount.com" \
+    --role="roles/iam.serviceAccountAdmin"
+gcloud projects add-iam-policy-binding tf-k8s-ag \
+    --member="serviceAccount:svc-k8s@tf-k8s-ag.iam.gserviceaccount.com" \
+    --role="roles/iam.serviceAccountUser"
+gcloud projects add-iam-policy-binding tf-k8s-ag \
+    --member="serviceAccount:svc-k8s@tf-k8s-ag.iam.gserviceaccount.com" \
+    --role="roles/resourcemanager.projectIamAdmin"
+
+#enable containerregistry
+gcloud services enable containerregistry.googleapis.com
+
+#Create service account
+gcloud iam service-accounts create azure-pipelines-publisher \
+    --display-name="Azure Pipelines Publisher"
+
+#Greant roles/storage.admin
+AZURE_PIPELINES_PUBLISHER=azure-pipelines-publisher@$GOOGLE_CLOUD_PROJECT.iam.gserviceaccount.com
+gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
+    --member serviceAccount:$AZURE_PIPELINES_PUBLISHER \
+    --role roles/storage.admin
+
+#Generate Service Account key
+gcloud iam service-accounts keys create azure-pipelines-publisher.json \
+    --iam-account $AZURE_PIPELINES_PUBLISHER
+
+tr -d '\n' < azure-pipelines-publisher.json > azure-pipelines-publisher-oneline.json
+
