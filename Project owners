@@ -6,9 +6,3 @@ do
    gcloud projects get-iam-policy ${PROJECT} --flatten="bindings[].members[]" --filter="bindings.role=roles/owner" --format="value(bindings.members)"
    printf "\n" 
 done
-
-
-# Make account owner 
-# https://cloud.google.com/iam/docs/granting-changing-revoking-access#iam-view-access-gcloud
-gcloud organizations add-iam-policy-binding ########### \
-    --member=group:XXX@XXX.com --role=roles/owner
